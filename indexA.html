@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>とうものビンゴ</title>
+    <style>
+        :root { --bg-color: #071126; --accent-color: #ffa502; --primary-color: #ff4757; }
+        body { font-family: sans-serif; text-align: center; background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+        /* 上部のピンク案内枠 */
+        .instruction { width: 100%; max-width: 420px; font-size: 13px; font-weight: bold; background-color: rgba(255, 71, 87, 0.2); border: 2px solid var(--primary-color); padding: 10px; border-radius: 12px; color: #fff; margin-bottom: 15px; }
+
+        .bingo-wrapper { width: 100%; max-width: 420px; position: relative; }
+        .bg-image { width: 100%; display: block; }
+        
+        .bingo-board { 
+            position: absolute; top: 25.4%; left: 29.2%; 
+            width: 41.6%; height: 70.8%; 
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            grid-template-rows: repeat(3, 1fr); gap: 4%; 
+        }
+        
+        .cell { background: rgba(255, 255, 255, 0.98); border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 2px; cursor: pointer; position: relative; }
+        .cell-text { font-size: 10px; font-weight: bold; color: #1a252f; z-index: 6; pointer-events: none; }
+        .stamp-video { display: none; position: absolute; width: 100%; height: 100%; top: 0; left: 0; object-fit: cover; z-index: 7; }
+        .cell.selected .stamp-video { display: block; }
+
+        /* クリア後の画面（景品情報） */
+        #clearPopup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7,17,38,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .staff-button { padding: 15px 40px; background: #fff; color: #ff4757; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="instruction">
+        マスをタップしてスタンプをあつめよう！<br>
+        <span style="color: #ff9999;">1列そろったら、画面をスタッフにみせてね！</span>
+    </div>
+
+    <div class="bingo-wrapper">
+        <img src="haikei.png" class="bg-image">
+        <div class="bingo-board" id="board"></div>
+    </div>
+
+    <div id="clearPopup">
+        <h2 style="color: #ffa502;">🎆 ビンゴ達成！おめでとう！ 🎆</h2>
+        <div style="margin: 20px; line-height: 1.6; text-align: left;">
+            <p><strong>場所：</strong>盆踊り受付（常盤南小学校）</p>
+            <p><strong>時間：</strong>18時半 〜 20時</p>
+            <p><strong>けいひん：</strong>屋台チケット<br>
+            <span style="color: #ffa502;">※先着200名様（おはやめに！）</span></p>
+        </div>
+        <button class="staff-button" onclick="alert('スタッフ確認済みです。景品をお渡しします。')">スタッフ確認ボタン</button>
+    </div>
+
+    <script>
+        const items = [
+            '<ruby>舞台<rt>ぶたい</rt></ruby>に<ruby>上<rt>あ</rt></ruby>がって<br>たのしんだ',
+            '<ruby>絶対<rt>ぜったい</rt></ruby>に<br><ruby>来年<rt>らいねん</rt></ruby>も来る！！',
+            '加藤ふみあきさんを<br>みつけた！',
+            'オタゲーを<br>観た！',
+            'とうもの会の<br>ゲームに<ruby>参加<rt>さんか</rt></ruby>した', 
+            '<ruby>屋台<rt>ぜったい</rt></ruby>でお買物をした',
+            '<ruby>盆踊<rt>ぼんおど</rt></ruby>りを<br>1<ruby>曲以上<rt>きょくいじょう</rt></ruby>おどった',
+            '学校の<br><ruby>先生<rt>せんせい</rt></ruby>に会った',
+            '<ruby>消防団<rt>しょうぼうだん</rt></ruby>の人に<br><ruby>挨拶<rt>あいさつ</rt></ruby>した'
+        ];
+
+        const board = document.getElementById('board');
+        let cells = [];
+
+        items.forEach((text) => {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.innerHTML = `<div class="cell-text">${text}</div><video class="stamp-video" src="uchiwa.mp4" loop muted playsinline></video>`;
+            cell.onclick = () => {
+                cell.classList.toggle('selected');
+                const v = cell.querySelector('video');
+                if(cell.classList.contains('selected')) v.play(); else { v.pause(); v.currentTime = 0; }
+                checkBingo();
+            };
+            board.appendChild(cell);
+            cells.push(cell);
+        });
+
+        function checkBingo() {
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            if(lines.some(l => l.every(i => cells[i].classList.contains('selected')))) {
+                document.getElementById('clearPopup').style.display = 'flex';
+                board.style.pointerEvents = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
